@@ -88,8 +88,10 @@ public class PlayerMove : MonoBehaviour
     // 移動処理
     private void Move()
     {
-        // 仮の移動処理
+        // スケール取得
+        Vector3 scale = transform.localScale;
 
+        // 仮の移動処理
         if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
         {
             // 移動速度ベクトルを現在値から取得
@@ -97,6 +99,8 @@ public class PlayerMove : MonoBehaviour
             // X方向の速度を入力から決定
             velocity.x = 5.0f;
             m_rigidbody.velocity = velocity;
+
+            scale.x = 0.5f;
         }
         else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
@@ -105,7 +109,11 @@ public class PlayerMove : MonoBehaviour
             // X方向の速度を入力から決定
             velocity.x = -5.0f;
             m_rigidbody.velocity = velocity;
+
+            scale.x = -0.5f;
         }
+
+        transform.localScale = scale;
     }
 
     // ジャンプ処理
