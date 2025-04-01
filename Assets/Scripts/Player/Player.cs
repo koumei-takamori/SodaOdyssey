@@ -22,6 +22,10 @@ public class Player : MonoBehaviour
     [SerializeField]
     private PlayerData m_playerData;
 
+    // シェイカー
+    [SerializeField]
+    private ShakerController m_shaker;
+
     // 移動
     private PlayerMove m_move;
     // ステートマシン
@@ -29,13 +33,14 @@ public class Player : MonoBehaviour
     // プレイヤーステ―タス
     private PlayerStatus m_playerStatus;
 
+
     // プロパティ
     public Rigidbody2D Rigidbody { get { return m_rigidBody; } }
     public PlayerData PlayerData { get { return m_playerData; } }
     public PlayerMove PlayerMove { get { return m_move; } }
     public PlayerStateMachine StateMachine { get { return m_playerStateMachine; } }
     public PlayerStatus PlayerStatus { get { return m_playerStatus; } }
-
+    public ShakerController Shaker { get { return m_shaker; } }
 
     // 実行前初期化処理
     private void Awake()
@@ -46,13 +51,11 @@ public class Player : MonoBehaviour
         m_move = GetComponent<PlayerMove>();
 
         //	プレイヤーステータスの作成
-        m_playerStatus = new PlayerStatus();
-
+        m_playerStatus = new PlayerStatus(this);
         //	ステートマシーンの作成
-        m_playerStateMachine = new PlayerStateMachine();
-
-        //	ステートマシーンの初期化	※初期状態は攻撃
-        m_playerStateMachine.Initialize(m_playerStateMachine.PlayerIdle);
+        m_playerStateMachine = new PlayerStateMachine(this);
+        //	ステートマシーンの初期化
+        m_playerStateMachine.Initialize((int)PlayerState.Idle);
     }
 
     // 初期化処理
@@ -64,15 +67,16 @@ public class Player : MonoBehaviour
     // 更新処理
     private void Update()
     {
+        Debug.Log("チャージ時間" + PlayerData.ChargeTime);
+
         //	ステートの更新
         m_playerStateMachine.Update();
 
         //	プレイヤーのステータスの更新
-        m_playerStatus.Update();
+        // m_playerStatus.Update();
 
-
-        ////	死亡処理
-        //if (m_playerStatus.IsDie)
-        //    Destroy(gameObject);
+        //	死亡処理
+        if (m_playerStatus.IsDead)
+            Destroy(gameObject);
     }
 }

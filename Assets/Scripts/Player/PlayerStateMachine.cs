@@ -7,70 +7,77 @@
  *  制作日 : 2025/03/30
  *
  *********************************************************/
+using System.Collections.Generic;
 using UnityEngine;
+
+// ステートenum
+public enum PlayerState : int
+{
+    None = -1,
+    Idle = 0,
+    Charge = 1,
+    Shot = 2
+}
 
 public class PlayerStateMachine : MonoBehaviour
 {
-    //	各ステート
-    private PlayerIdle m_playerIdle;        //	待機ステート
-    private PlayerShot m_playerShot;        //	発射ステート
-
-    //	現在のステート
+    // 現在のステート
     private IPlayerState m_currentState;
 
-    //	各ステートのプロパティ
-    public PlayerIdle PlayerIdle { get { return m_playerIdle; } }
-    public PlayerShot PlayerShot { get { return m_playerShot; } }
+    // ステートIDを保存
+    private int m_currentStateID;
 
-    public IPlayerState CurrentState { get { return m_currentState; } }
+    // 全てのステート定義
+    private readonly Dictionary<int, IPlayerState> m_states = new Dictionary<int, IPlayerState>();
+
+    // プロパティ
+    public IPlayerState CurrentState => m_currentState;
+
+    // 現在のステートIDを取得するプロパティ
+    public int CurrentStateID => m_currentStateID;
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    public PlayerStateMachine()
+    public PlayerStateMachine(Player player)
     {
-        m_playerIdle = new PlayerIdle();
+        // ステートを追加
+        m_states.Add((int)PlayerState.Idle, new PlayerIdle(player));
+        m_states.Add((int)PlayerState.Charge, new PlayerCharge(player));
+        m_states.Add((int)PlayerState.Shot, new PlayerShot(player));
     }
 
     /// <summary>
     /// 初期化処理
     /// </summary>
-    /// <param name="startState">最初のステート</param>
-    public void Initialize(IPlayerState startState)
+    public void Initialize(int stateID)
     {
-        //	開始時のステートを設定
-        m_currentState = startState;
-        //	入場処理を行う
+        m_currentStateID = stateID;
+        m_currentState = m_states[stateID];
         m_currentState.OnEnter();
     }
-
 
     /// <summary>
     /// 更新処理
     /// </summary>
     public void Update()
     {
-        //	ステートが未設定のときは処理しない
         if (m_currentState == null)
             return;
 
-        //	現在のステートを更新
         m_currentState.Update();
     }
 
     /// <summary>
     /// ステートの切り替え
     /// </summary>
-    /// <param name="nextState">次のステート</param>
-    public void ChangeState(IPlayerState nextState)
+    public void ChangeState(int nextStateID)
     {
-        //	ステートの退場処理を行う
         m_currentState.OnExit();
 
-        //	ステートを書き換える
-        m_currentState = nextState;
+        m_currentStateID = nextStateID;  // ステートIDを更新
+        m_currentState = m_states[nextStateID];
 
-        //	ステートの入場処理を行う
         m_currentState.OnEnter();
     }
 }
