@@ -1,16 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 
 public class Goal : MonoBehaviour
 {
 
     private void Update()
     {
-        // 仮の移動処理
+        // デバッグ用
         if (Input.GetKey(KeyCode.P))
         {
             SceneManager.LoadScene("ClearScene"); // シーン2に移動
@@ -27,3 +23,4 @@ public class Goal : MonoBehaviour
         }
     }
 }
+

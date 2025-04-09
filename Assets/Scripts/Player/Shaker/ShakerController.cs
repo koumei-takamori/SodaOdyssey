@@ -7,8 +7,6 @@
  *  制作日 : 2025/03/31
  *
  *********************************************************/
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ShakerController : MonoBehaviour
@@ -19,20 +17,36 @@ public class ShakerController : MonoBehaviour
     public float m_orbitRadius = 0.3f;
     // 前フレームの位置
     private Vector3 m_previousPosition;
-    // 総移動距離
-    private float m_totalDistance;
+    // シェイクした距離
+    private float m_shakeDistance;
 
     // 弾
     [SerializeField]
     private GameObject m_bulletPrefab;
 
+    //クールタイム
+    [SerializeField]
+    private static float COOLTIME = 1.0f;
+
+    //タイマー
+    private float m_timer;
+
 
     // プロパティ
-    public float TotalDistance {  get { return m_totalDistance; } }
+    public float TotalDistance {  get { return m_shakeDistance; } }
 
     // 実行前初期化処理
     private void Awake()
     {
+    }
+
+    /// <summary>
+    /// クールダウン(常に更新)
+    /// </summary>
+    public void CoolDown()
+    {
+        if (m_timer > 0.0f)
+            m_timer -= Time.deltaTime;
     }
 
     // 更新処理
@@ -56,13 +70,7 @@ public class ShakerController : MonoBehaviour
                 m_previousPosition = newPosition;
 
             // 前回の位置と現在の位置の距離を加算
-            m_totalDistance += Vector3.Distance(m_previousPosition, newPosition);
-        }
-        else
-        {
-            // マウスを離したらリセット
-            m_totalDistance = 0;
-            m_previousPosition = Vector3.zero;
+            m_shakeDistance += Vector3.Distance(m_previousPosition, newPosition);
         }
 
         // 子オブジェクトの位置を更新
@@ -74,25 +82,42 @@ public class ShakerController : MonoBehaviour
 
         // 現在の位置を保存（次のフレームの比較用）
         m_previousPosition = newPosition;
-
-        // デバッグ用に移動距離を表示
-        // Debug.Log("総移動距離: " + m_totalDistance);
     }
 
-    // 発射
-    public void Shot()
+    /// <summary>
+    /// 発射処理
+    /// </summary>
+    /// <returns>発射できたか</returns>
+    public bool Shot()
     {
-        // マウスのスクリーン座標を取得し、ワールド座標に変換
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePosition.z = 0; // 2DなのでZ座標は無視
+        // クールタイムを消費していたら発射
+        if (m_timer <= 0.0f)
+        {
+            // マウスのスクリーン座標を取得し、ワールド座標に変換
+            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosition.z = 0; // 2DなのでZ座標は無視
 
-        // プレイヤーを中心とした方向を計算
-        Vector3 direction = (mousePosition - m_player.transform.position).normalized;
-        // マウスの方向を向くように回転
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+            // プレイヤーを中心とした方向を計算
+            Vector3 direction = (mousePosition - m_player.transform.position).normalized;
+            // マウスの方向を向くように回転
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
 
-        GameObject bullet = Instantiate(m_bulletPrefab, transform.position, Quaternion.identity);
-        bullet.GetComponent<BulletController>().SetDirection(direction);
+            // 弾を生成
+            GameObject bullet = Instantiate(m_bulletPrefab, transform.position, Quaternion.identity);
+            bullet.GetComponent<BulletController>().SetDirection(direction);
+
+            // リセット
+            m_shakeDistance = 0;
+            m_previousPosition = Vector3.zero;
+            // クールタイム設定
+            m_timer = COOLTIME;
+
+            // 発射した
+            return true;
+        }
+      
+        // 発射できなかった
+        return false;
     }
 }

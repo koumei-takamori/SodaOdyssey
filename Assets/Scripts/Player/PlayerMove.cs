@@ -27,7 +27,7 @@ public class PlayerMove : MonoBehaviour
     private float m_jumpPower;      // ジャンプ力
 
     //	移動禁止フラグ
-    private bool m_cantMove;
+    private bool m_cantMove = false;
 
 
     [Header("接地判定")]
@@ -99,8 +99,6 @@ public class PlayerMove : MonoBehaviour
             // X方向の速度を入力から決定
             velocity.x = 5.0f;
             m_rigidbody.velocity = velocity;
-
-            scale.x = 0.5f;
         }
         else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
         {
@@ -109,9 +107,9 @@ public class PlayerMove : MonoBehaviour
             // X方向の速度を入力から決定
             velocity.x = -5.0f;
             m_rigidbody.velocity = velocity;
-
-            scale.x = -0.5f;
         }
+
+        scale.x = m_rigidbody.velocity.x >= 0 ? 0.5f : -0.5f;
 
         transform.localScale = scale;
     }

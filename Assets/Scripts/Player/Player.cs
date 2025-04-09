@@ -13,7 +13,6 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerMove))]
 public class Player : MonoBehaviour
 {
-
     // リジッドボディ
     [SerializeField]
     private Rigidbody2D m_rigidBody;
@@ -50,6 +49,7 @@ public class Player : MonoBehaviour
         //	移動の取得
         m_move = GetComponent<PlayerMove>();
 
+
         //	プレイヤーステータスの作成
         m_playerStatus = new PlayerStatus(this);
         //	ステートマシーンの作成
@@ -67,8 +67,6 @@ public class Player : MonoBehaviour
     // 更新処理
     private void Update()
     {
-        Debug.Log("チャージ時間" + PlayerData.ChargeTime);
-
         //	ステートの更新
         m_playerStateMachine.Update();
 
