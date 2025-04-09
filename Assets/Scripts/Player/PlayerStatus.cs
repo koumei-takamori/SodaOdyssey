@@ -20,7 +20,7 @@ public class PlayerStatus : IDamageReceivable
     private int m_hp;
 
     // 死亡フラグ
-    private bool m_isDead;
+    private bool m_isDead = false;
 
     // プロパティ
     public int HP { get { return m_hp; } }

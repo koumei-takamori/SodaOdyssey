@@ -14,9 +14,9 @@ public class PlayerCharge : IPlayerState
     //	プレイヤー
     private Player m_player;
 
-    // チャージ時間
-    private float m_chargeTime;
-    
+    // 落とす速度の係数
+    private float m_slowFactor = 0.99f; 
+
     /// <summary>
     /// コンストラクタ
     /// </summary>
@@ -24,21 +24,19 @@ public class PlayerCharge : IPlayerState
     public PlayerCharge(Player player)
     {
         m_player = player;
-        m_chargeTime = 0;
     }
 
 
     public void OnEnter()
     {
-        m_chargeTime = 0;
     }
 
     public void Update()
     {
         Debug.Log("State :" + " チャージ");
 
-        // チャージ時間加算
-        m_chargeTime += Time.deltaTime;
+        // 速度を遅くする
+        m_player.Rigidbody.velocity *= m_slowFactor;
 
         // ステートを遷移させる
         // 発射する
@@ -50,8 +48,6 @@ public class PlayerCharge : IPlayerState
 
     public void OnExit()
     {
-        // チャージ時間設定
-        m_player.PlayerData.ChargeTime = m_chargeTime;
     }
 
 }

@@ -66,6 +66,15 @@ public class PlayerStateMachine : MonoBehaviour
             return;
 
         m_currentState.Update();
+
+        // Shotステートのクールダウン処理だけ常に更新
+        if (m_states.TryGetValue((int)PlayerState.Shot, out var shotState))
+        {
+            if (shotState is PlayerShot playerShot)
+            {
+                playerShot.CollDown();  
+            }
+        }
     }
 
     /// <summary>
